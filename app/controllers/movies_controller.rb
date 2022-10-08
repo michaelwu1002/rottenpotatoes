@@ -9,7 +9,7 @@ class MoviesController < ApplicationController
     def index
       sort = params[:sort] || session[:sort]
       if sort == 'title'
-        @hilite_tit = "bg-warning"
+        @hilite_tit = "p-3 mb-2 bg-warning"
       end
       if sort == 'release_date'
         @hilite_rel = "bg-warning"
