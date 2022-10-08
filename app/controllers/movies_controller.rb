@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
     def index
       sort = params[:sort] || session[:sort]
+      params[:home] = 1
       if sort == 'title'
         @hilite_tit = "bg-warning"
       end
@@ -16,23 +17,42 @@ class MoviesController < ApplicationController
       end
 
       if params[:ratings].nil?
-        @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
+        if params[:home].nil?
+          @ratings_to_show = session[:ratings]
+        else
+          @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
+        end
         redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
       else
         @all_ratings = Movie.all_ratings
         @ratings_to_show = params[:ratings] || session[:ratings] || {}
-    
+        if session[:ratings].nil?
+          @ratings_to_show = session[:ratings]
+        end
         if @ratings_to_show == {}
           @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
           if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
             session[:ratings] = @ratings_to_show
             session[:sort] = sort
           end
+
+          if params[:ratings] == {} and not(session[:ratings].nil?)
+            @ratings_to_show = session[:ratings]
+            redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
+          end
+
           @movies = Movie.order(sort)
         else
+
           if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
             session[:ratings] = @ratings_to_show
             session[:sort] = sort
+            params[:home] = 1
+          end
+
+          if params[:ratings] == {} and not(session[:ratings].nil?)
+            @ratings_to_show = session[:ratings]
+            redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
           end
 
           @movies = Movie.with_ratings(@ratings_to_show, sort)
