@@ -5,22 +5,43 @@ class MoviesController < ApplicationController
       @movie = Movie.find(id) # look up movie by unique ID
       # will render app/views/movies/show.<extension> by default
     end
-  
+
     def index
       sort = params[:sort] || session[:sort]
+      if sort == 'title'
+        @hilite_tit = "bg-warning"
+      end
+      if sort == 'release_date'
+        @hilite_rel = "bg-warning"
+      end
 
-      @all_ratings = Movie.all_ratings
-      @ratings_to_show = params[:ratings] || session[:ratings] || {}
-  
-      if @ratings_to_show == {}
+      if params[:ratings].nil?
         @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
+        redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
+      else
+
+        @all_ratings = Movie.all_ratings
+        @ratings_to_show = params[:ratings] || session[:ratings] || {}
+    
+        if @ratings_to_show == {}
+          @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
+          if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+            session[:ratings] = @ratings_to_show
+            session[:sort] = sort
+
+          end
+          @movies = Movie.order(sort)
+        else
+    
+          if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+            session[:ratings] = @ratings_to_show
+            session[:sort] = sort
+
+          end
+
+          @movies = Movie.with_ratings(@ratings_to_show, sort)
+        end
       end
-  
-      if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
-        session[:ratings] = @ratings_to_show
-        session[:sort] = sort
-      end
-      @movies = Movie.where(rating: @ratings_to_show.keys).order(sort)
     end
   
     def new

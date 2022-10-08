@@ -3,7 +3,7 @@ class Movie < ActiveRecord::Base
     %w(G PG PG-13 R)
   end
 
-  def self.with_ratings(ratings_list)
-    self.find(:all, :select => "rating", :group => "rating").map(&:rating)
+  def self.with_ratings(ratings_list, sort)
+    Movie.where(rating: ratings_list.keys).order(sort)
   end
 end
