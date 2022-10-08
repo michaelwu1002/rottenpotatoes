@@ -37,11 +37,6 @@ class MoviesController < ApplicationController
             session[:sort] = sort
           end
 
-          if params[:ratings] == {} and not(session[:ratings].nil?)
-            @ratings_to_show = session[:ratings]
-            redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
-          end
-
           @movies = Movie.order(sort)
         else
 
@@ -49,11 +44,6 @@ class MoviesController < ApplicationController
             session[:ratings] = @ratings_to_show
             session[:sort] = sort
             params[:home] = 1
-          end
-
-          if params[:ratings] == {} and not(session[:ratings].nil?)
-            @ratings_to_show = session[:ratings]
-            redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
           end
 
           @movies = Movie.with_ratings(@ratings_to_show, sort)
