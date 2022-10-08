@@ -23,6 +23,7 @@ class MoviesController < ApplicationController
           @ratings_to_show = {"G" => 1, "PG" => 1, "PG-13" => 1, "R" => 1}
         end
         redirect_to movies_path(:ratings => @ratings_to_show, :sort => params[:sort])
+      
       else
         @all_ratings = Movie.all_ratings
         @ratings_to_show = params[:ratings] || session[:ratings] || {}
